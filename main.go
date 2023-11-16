@@ -8,7 +8,7 @@ import (
 
 func main() {
 	// Create a new dictionary
-	myDictionary := make(dictionary.Dictionary)
+	myDictionary := dictionary.NewDictionary("dictionary.json")
 
 	// Add words and their definitions
 	myDictionary.Add("niece", "a daughter of one's brother or sister")
