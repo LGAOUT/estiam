@@ -19,12 +19,12 @@ func main() {
 	// Get and print a definition
 	fmt.Println("The Definition of 'chair':", myDictionary.Get("chair"))
 
-	// List all words and their definitions
+	// List all words and their values
 	fmt.Println("All words and definitions:", myDictionary.List())
 
-	// Remove a word
+	// Remove func
 	myDictionary.Remove("chair")
 
-	// List again after removal
+	// List without 'chair'
 	fmt.Println("All words and definitions after removal:", myDictionary.List())
 }
