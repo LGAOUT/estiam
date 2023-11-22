@@ -4,6 +4,10 @@ import (
 	"encoding/json"
 
 	"os"
+
+	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 // Dictionary struct represents the dictionary.
@@ -90,4 +94,54 @@ func (d *Dictionary) listenForOperations() {
 			d.save()
 		}
 	}
+}
+
+// HandleRequests configures and sets up the API routes.
+func (d *Dictionary) HandleRequests() {
+	router := mux.NewRouter()
+
+	router.HandleFunc("/add", d.AddEntry).Methods("POST")
+	router.HandleFunc("/get/{word}", d.GetDefinition).Methods("GET")
+	router.HandleFunc("/remove/{word}", d.RemoveEntry).Methods("DELETE")
+
+	http.Handle("/", router)
+}
+
+// AddEntry handles the POST request to add an entry to the dictionary.
+func (d *Dictionary) AddEntry(w http.ResponseWriter, r *http.Request) {
+	var entry entryOperation
+
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&entry)
+	if err != nil {
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		return
+	}
+
+	d.Add(entry.word, entry.definition)
+	w.WriteHeader(http.StatusOK)
+}
+
+// GetDefinition handles the GET request to retrieve the definition of a word from the dictionary.
+func (d *Dictionary) GetDefinition(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	word := vars["word"]
+
+	definition := d.Get(word)
+	if definition == "" {
+		http.Error(w, "Word not found", http.StatusNotFound)
+		return
+	}
+
+	response := map[string]string{"word": word, "definition": definition}
+	json.NewEncoder(w).Encode(response)
+}
+
+// RemoveEntry handles the DELETE request to remove an entry from the dictionary.
+func (d *Dictionary) RemoveEntry(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	word := vars["word"]
+
+	d.Remove(word)
+	w.WriteHeader(http.StatusOK)
 }
